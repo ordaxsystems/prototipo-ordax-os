@@ -123,7 +123,14 @@ test("Native Store composition derives installability only from verified catalog
     calls.some((call) => String(call.url).includes("/__ordax/native/component-runtime")),
     true,
   );
+  const readsBefore = calls.length;
+  const observations = composition.getCurrentObservations();
+  assert.equal(calls.length, readsBefore, "First Run reuses existing Native metadata without refetch");
+  assert.deepEqual(observations.map(item => item.componentId).sort(), ["notes", "studio"]);
+  assert.equal(observations.find(item => item.componentId === "notes").source, "absent");
+  assert.equal(Object.isFrozen(observations), true);
   composition.destroy();
+  assert.deepEqual(composition.getCurrentObservations(), []);
 });
 
 test("Native Store composition preserves unavailable state without inventing catalog entries", async () => {
@@ -152,6 +159,7 @@ test("Native Store composition preserves unavailable state without inventing cat
   const snapshot = composition.port.getSnapshot();
   assert.equal(snapshot.state, "unavailable");
   assert.deepEqual(snapshot.entries, []);
+  assert.deepEqual(composition.getCurrentObservations(), []);
   composition.destroy();
 });
 
@@ -165,5 +173,6 @@ test("Native Store composition has an authority-free fallback when browser trans
   assert.deepEqual(snapshot.entries, []);
   assert.equal(composition.port.authority, "none");
   assert.equal(composition.verifiedCatalogPort, null);
+  assert.deepEqual(composition.getCurrentObservations(), []);
   composition.destroy();
 });
