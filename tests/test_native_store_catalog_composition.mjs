@@ -7,6 +7,7 @@ import {
 import {
   createNativeStoreCatalogComposition,
 } from "../system/composition/native/store-catalog.mjs";
+import { planFirstRunAppSelectionFromStore } from "../system/services/apps/first-run-selection.mjs";
 
 const COMMIT = "a".repeat(40);
 
@@ -174,5 +175,43 @@ test("Native Store composition has an authority-free fallback when browser trans
   assert.equal(composition.port.authority, "none");
   assert.equal(composition.verifiedCatalogPort, null);
   assert.deepEqual(composition.getCurrentObservations(), []);
+  composition.destroy();
+});
+
+test("Native first-run selection shares Store current-state reads and never restores an explicitly removed app", async () => {
+  let nativeSource = "absent";
+  let nativeReads = 0;
+  const composition = await createNativeStoreCatalogComposition({
+    windowRef: {
+      async fetch(url) {
+        if (url === "/__ordax/native/store-catalog") return response(verifiedCatalog());
+        const parsed = new URL(url);
+        if (parsed.pathname === "/__ordax/native/component-runtime") {
+          nativeReads += 1;
+          const appId = parsed.searchParams.get("component");
+          return response({ ...metadata(appId), source: appId === "notes" ? nativeSource : "absent" });
+        }
+        return response({}, 404);
+      },
+    },
+    componentSource: componentSource(),
+  });
+  const observe = (initialProvisioning) => planFirstRunAppSelectionFromStore({
+    initialProvisioning,
+    explicitlyRemovedAppIds: [],
+    storeCatalogSnapshot: composition.port.getSnapshot(),
+    nativeCurrentMetadata: composition.getCurrentObservations(),
+  });
+  const count = nativeReads;
+  assert.deepEqual(observe(true).eligibleCandidateAppIds, ["notes"]);
+  assert.equal(nativeReads, count, "first-run plan must not issue another Native read");
+
+  nativeSource = "removed";
+  await composition.refresh();
+  const removed = observe(true);
+  assert.deepEqual(removed.eligibleCandidateAppIds, []);
+  assert.ok(removed.suppressedAppIds.includes("notes"));
+  assert.deepEqual(observe(false).eligibleCandidateAppIds, []);
+  assert.ok(observe(false).suppressedAppIds.includes("notes"));
   composition.destroy();
 });
