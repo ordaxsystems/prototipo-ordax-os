@@ -138,11 +138,11 @@ class NativeComponentSlotTests(unittest.TestCase):
         self.assertNotIn("clock", slots.SUPPORTED_COMPONENTS)
 
         output = (
-            b"RUNTIME_COMPONENT_CURRENT_RESOLVED=YES\\n"
-            b"COMPONENT_ID=calculator\\n"
-            b"REVISION=0\\n"
-            b"SOURCE=ABSENT\\n"
-            b"RUNTIME_SERVED_FROM_SLOT=NO\\n"
+            b"RUNTIME_COMPONENT_CURRENT_RESOLVED=YES\n"
+            b"COMPONENT_ID=calculator\n"
+            b"REVISION=0\n"
+            b"SOURCE=ABSENT\n"
+            b"RUNTIME_SERVED_FROM_SLOT=NO\n"
         )
         completed = subprocess.CompletedProcess([], 0, stdout=output, stderr=b"")
         with mock.patch.object(slots.subprocess, "run", return_value=completed) as run:
@@ -166,7 +166,7 @@ class NativeComponentSlotTests(unittest.TestCase):
         self.assertEqual(request.component_id, "calculator")
         self.assertEqual(request.requested_path, "system/apps/calculator/src/runtime.mjs")
 
-        payload = b"export const componentRuntime = Object.freeze({});\\n"
+        payload = b"export const componentRuntime = Object.freeze({});\n"
         success = subprocess.CompletedProcess([], 0, stdout=payload, stderr=b"")
         with mock.patch.object(slots.subprocess, "run", return_value=success) as runner:
             data = slots.read_component_runtime_file(
