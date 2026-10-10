@@ -161,6 +161,29 @@ class FirstRunContractTests(unittest.TestCase):
         self.assertNotIn("localStorage", ui)
         self.assertNotIn("sessionStorage", ui)
 
+    def test_first_run_essentials_reuses_native_store_and_never_installs_by_presentation(self):
+        native = NATIVE_MAIN.read_text(encoding="utf-8")
+        first_run = UI.read_text(encoding="utf-8")
+        composition = (ROOT / "system" / "composition" / "native" / "store-catalog.mjs").read_text(encoding="utf-8")
+        projection = (ROOT / "system" / "services" / "apps" / "verified-store-projection.mjs").read_text(encoding="utf-8")
+        translated = (ROOT / "system" / "services" / "i18n" / "first-run.mjs").read_text(encoding="utf-8")
+        self.assertIn("planFirstRunAppSelectionFromStore", native)
+        self.assertIn("initialProvisioning: !firstRunStateStore.load().completed", native)
+        self.assertIn("storeCatalogComposition?.getCurrentObservations()", native)
+        self.assertIn("getCurrentObservations()", composition)
+        self.assertIn("currentObservations = Object.freeze([])", projection)
+        self.assertIn('firstRunAppSelection.installedByThisPlan !== false', first_run)
+        self.assertIn("Nenhum aplicativo adicional foi instalado.", first_run)
+        self.assertNotIn("installApp(", first_run)
+        for text in (
+            "Aplicativos essenciais",
+            "Pacotes independentes confirmados:",
+            "Candidatos verificados para futura distribuição:",
+            "Remoção preservada ou fora do primeiro uso:",
+            "Ainda sem comprovação de distribuição:",
+        ):
+            self.assertEqual(translated.count(json.dumps(text, ensure_ascii=False) + ":"), 4)
+
     def test_branding_records_first_run_without_claiming_early_graphics(self):
         branding = json.loads(BRANDING.read_text(encoding="utf-8"))
         self.assertTrue(branding["first_run"]["implemented"])
