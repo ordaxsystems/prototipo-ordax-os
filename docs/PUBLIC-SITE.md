@@ -106,7 +106,7 @@ O menu de perfil inclui saída apenas com sessão verificada. `POST /auth/logout
 cliente expõe somente `status` e `email`, sem tokens, cookies, IDs ou atributos
 não contratados. Retry, reativação da aba e retorno pelo histórico revalidam a
 sessão; dados pessoais são limpos na invalidação, no logout e no `pagehide`.
-Respostas de gerações antigas não restauram dados revogados.
+Respostas de gerações antigas não restauram dados revogados. A revalidação atualiza imediatamente as telas com dados de identidade, mas preserva os controles das seções independentes da sessão, para não interromper busca de ajuda ou preferências.
 
 Assets do cliente e das entradas de login recebem versões pelo hash do conteúdo.
 As rotas do manifesto são derivadas das páginas existentes no build.
