@@ -37,7 +37,8 @@ test("generated external first-party runtime policy exposes one canonical owner 
   assert.deepEqual(EXTERNAL_FIRST_PARTY_NATIVE_MODULE_READ_IDS, expectedModuleRead);
   assert.equal(hasNativeExternalFirstPartyModuleRead("notes"), true);
   assert.equal(hasNativeExternalFirstPartyModuleRead("studio"), true);
-  assert.equal(hasNativeExternalFirstPartyModuleRead("calculator"), false);
+  assert.equal(hasNativeExternalFirstPartyModuleRead("calculator"), true);
+  assert.equal(hasNativeExternalFirstPartyModuleRead("clock"), false);
   assert.equal(hasNativeExternalFirstPartyModuleRead("unknown"), false);
   assert.equal(hasNativeExternalFirstPartyModuleRead("../notes"), false);
   assert.strictEqual(listExternalFirstPartyComponentIds(), EXTERNAL_FIRST_PARTY_COMPONENT_IDS);
