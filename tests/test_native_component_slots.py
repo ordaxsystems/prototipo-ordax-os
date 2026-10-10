@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import runpy
 from pathlib import Path
 import os
 import subprocess
@@ -75,6 +77,29 @@ class NativeComponentSlotTests(unittest.TestCase):
                     product_mode="usb",
                 )
             )
+
+    def test_generated_native_scopes_exactly_match_ssot_and_reject_health_escalation(self):
+        policy = json.loads(
+            (ROOT / "docs/contracts/runtime-component-package.json").read_text(encoding="utf-8")
+        )
+        generator = runpy.run_path(str(ROOT / "tools/app-policy/render_native_store_metadata_policy.py"))
+        generated = generator["render"](policy)
+        output = (ROOT / "system/surface/runtime/native_store_metadata_policy.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertEqual(generated, output)
+        self.assertNotIn('"clock",', generated.split("NATIVE_MODULE_READ_COMPONENT_IDS", 1)[1])
+        self.assertNotIn('"calculator",', generated.split("NATIVE_HEALTH_MUTATION_COMPONENT_IDS", 1)[1])
+        with self.assertRaises(generator["MetadataPolicyError"]):
+            generator["render"]({
+                **policy,
+                "native_loopback_broker_health_mutation_components": ["internet", "notes", "clock"],
+            })
+        with self.assertRaises(generator["MetadataPolicyError"]):
+            generator["render"]({
+                **policy,
+                "native_loopback_broker_supported_components": ["internet", "internet"],
+            })
 
     def test_read_and_health_mutation_allowlists_are_derived_and_separate(self):
         from native_store_metadata_policy import (
