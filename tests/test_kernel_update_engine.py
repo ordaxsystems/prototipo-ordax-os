@@ -4,6 +4,7 @@ from __future__ import annotations
 import contextlib
 import io
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -96,12 +97,36 @@ class KernelUpdateEngineTests(unittest.TestCase):
             self.assertEqual(path.read_bytes(), b"immutable\n")
 
     def test_update_does_not_attempt_network_on_current_candidate(self):
-        path, current = UPDATER.PIPELINE.select_candidate()
+        path, current = UPDATER.PIPELINE.select_candidate(require_newer=False)
         feed = {"version": current["version"], "source": current["archive_url"],
                 "pgp": current["signature_url"]}
         with mock.patch.object(UPDATER, "download_bounded", side_effect=AssertionError("network")):
             result = UPDATER.prepare_new_candidate(feed)
         self.assertEqual(result["status"], "up-to-date")
+
+    def test_equal_active_and_candidate_version_remains_idempotent_without_network(self):
+        # Promotion means the reviewed candidate can equal the active source.
+        # This is not a downgrade and must not trigger re-download or fail CI.
+        path, candidate = UPDATER.PIPELINE.select_candidate(require_newer=False)
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            directory = root / "bootstrap/kernel/candidates"
+            directory.mkdir(parents=True)
+            (root / "bootstrap/kernel/source.json").write_text(
+                json.dumps(candidate) + "\n", encoding="utf-8"
+            )
+            (directory / path.name).write_text(
+                json.dumps(candidate) + "\n", encoding="utf-8"
+            )
+            (directory / "proposal.json").write_text(json.dumps({
+                "$schema": UPDATER.PIPELINE.SELECTION_SCHEMA,
+                "source_contract": f"bootstrap/kernel/candidates/{path.name}",
+            }) + "\n", encoding="utf-8")
+            feed = {"version": candidate["version"], "source": candidate["archive_url"],
+                    "pgp": candidate["signature_url"]}
+            with mock.patch.object(UPDATER, "download_bounded", side_effect=AssertionError("network")):
+                result = UPDATER.prepare_new_candidate(feed, root=root)
+            self.assertEqual(result, {"status": "up-to-date", "candidate": candidate["version"]})
 
 
 if __name__ == "__main__":
