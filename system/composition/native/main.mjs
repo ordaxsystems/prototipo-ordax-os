@@ -56,6 +56,7 @@ import { createWebSyncTransport } from "../../adapters/web/sync-transport.mjs";
 import { validateAccountRuntime } from "../../services/account/runtime.mjs";
 import { createAppActivationChannel } from "../../services/apps/activation.mjs";
 import { createAppLifecycleRequestService } from "../../services/apps/store-lifecycle-request-service.mjs";
+import { planFirstRunAppSelectionFromStore } from "../../services/apps/first-run-selection.mjs";
 import { createUnavailableAppStoreCatalogPort } from "../../contracts/app-store.mjs";
 import { listSystemComponents } from "../../apps/component-catalog.mjs";
 import { listFirstPartyApps } from "../../apps/catalog.mjs";
@@ -1066,10 +1067,19 @@ async function start() {
   surface.replaceAppCatalog(activeExternalCatalog.catalog);
 
   bootScreen.setStage(surface.localization.translate("surface.boot.preparingFirstRun"));
+  // First Run reads the already-verified Store projection and its matching
+  // ephemeral Native current observations. It has NO installation authority.
+  const firstRunAppSelection = planFirstRunAppSelectionFromStore({
+    initialProvisioning: !firstRunStateStore.load().completed,
+    explicitlyRemovedAppIds: [],
+    storeCatalogSnapshot: storeCatalog.getSnapshot(),
+    nativeCurrentMetadata: storeCatalogComposition?.getCurrentObservations() ?? [],
+  });
   let firstRun = null;
   try {
     firstRun = mountFirstRunExperience(root, {
       stateStore: firstRunStateStore,
+      firstRunAppSelection,
       preferences: surface.preferences,
       networkManagement,
       identitySession,
