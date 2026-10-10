@@ -45,6 +45,21 @@ def render(payload: dict) -> str:
             or len(ids) != len(set(ids))
         ):
             raise MetadataPolicyError(f"{label} scope in canonical policy is invalid")
+    platform_ids = payload.get("supported_components")
+    packaging_only = payload.get("packaging_only_components")
+    if (
+        not isinstance(platform_ids, list)
+        or not isinstance(packaging_only, list)
+        or any(not isinstance(app_id, str) or not APP_ID_RE.fullmatch(app_id) for app_id in platform_ids)
+        or any(not isinstance(app_id, str) or not APP_ID_RE.fullmatch(app_id) for app_id in packaging_only)
+        or len(platform_ids) != len(set(platform_ids))
+        or len(packaging_only) != len(set(packaging_only))
+        or not set(packaging_only).issubset(platform_ids)
+    ):
+        raise MetadataPolicyError("platform component classification is invalid")
+    allowed_read = set(package_sources) | (set(platform_ids) - set(packaging_only))
+    if not set(module_ids).issubset(allowed_read):
+        raise MetadataPolicyError("Native module read must have a canonical executable source owner")
     if not set(health_ids).issubset(module_ids):
         raise MetadataPolicyError("Native health mutation cannot exceed signed module-read scope")
     metadata_ids = sorted(set(package_sources) | set(module_ids))
