@@ -65,6 +65,18 @@ class KernelConsumerSSOTTests(unittest.TestCase):
             with self.assertRaises(ASSEMBLER.AssembleError):
                 ASSEMBLER.canonical_kernel_sources(root)
 
+    def test_creator_diagnosis_and_physical_release_use_canonical_version_exporter(self):
+        diagnosis = (ROOT / ".github/workflows/creator-owner-build-diagnose.yml").read_text(encoding="utf-8")
+        physical = (ROOT / ".github/workflows/first-physical-usb-payload.yml").read_text(encoding="utf-8")
+        self.assertIn('python3 bootstrap/kernel/ci_env.py --github-env "$GITHUB_ENV"', diagnosis)
+        self.assertIn('kernel-modules-$ORDAX_KERNEL_VERSION.tar', diagnosis)
+        self.assertIn('operator/bootstrap/kernel/ci_env.py', physical)
+        self.assertIn('--source-contract release-source/bootstrap/kernel/source.json', physical)
+        self.assertIn('vmlinuz-$ORDAX_KERNEL_VERSION', physical)
+        self.assertIn('kernel-modules-$ORDAX_KERNEL_VERSION.tar', physical)
+        self.assertNotIn('6.6.52', diagnosis)
+        self.assertNotIn('6.6.52', physical)
+
     def test_stale_bootstrap_manifest_rejected_before_output(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -1,6 +1,6 @@
 # Kernel Provenance
 
-Status: CLEAN-ROOM BUILD ENTRYPOINT IMPLEMENTED / PINNED REPEAT PROOF COMPLETE
+Status: BUILDER AUTENTICADO / PROMOÇÃO LTS EM PR / SEM AUTORIZAÇÃO FÍSICA
 
 ## Canonical prototype source
 
@@ -8,18 +8,20 @@ Machine-readable source identity:
 
 `bootstrap/kernel/source.json`
 
-```text
-KERNEL_RELEASE=6.6.52
-OFFICIAL_ARCHIVE=https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.52.tar.xz
-OFFICIAL_SOURCE_ARCHIVE_SHA256=1591ab348399d4aa53121158525056a69c8cf0fe0e90935b0095e9a58e37b4b8
-BASE_CONFIG=defconfig
-ORDAX_FRAGMENT=bootstrap/kernel/config/ordax.fragment
-BUILD_ENTRYPOINT=bootstrap/kernel/build.py
-PINNED_ENVIRONMENT_RESOLVED=YES
-PHYSICAL_ARTIFACT_AUTHORIZED=NO
-```
+O único contrato ativo é `bootstrap/kernel/source.json`, inclusive para a
+versão, a URL e o SHA-256 do upstream. A configuração é
+`bootstrap/kernel/config/ordax.fragment`, e o builder oficial é
+`bootstrap/kernel/build.py`. A proposta assinada preserva a sua identidade
+revisada sob `bootstrap/kernel/candidates/`, mas não é fonte ativa paralela.
 
-The official 6.6.52 archive remains available from kernel.org. The repository build entrypoint downloads it when needed, verifies the pinned SHA-256 before extraction, builds only from a fresh isolated source tree, and never trusts a pre-extracted developer-machine kernel tree.
+Nesta PR de migração, a revisão assinada 6.6.158 é compilada pelos consumidores
+reais. `pinned_environment_resolved=false` e
+`physical_artifact_authorized=false` permanecem até evidências atuais e
+autorização independente; **a main só altera seu kernel com o merge validado**.
+
+Os arquivos abaixo sobre 6.6.52 e seus digests são registros históricos de
+provas executadas, **não** identidade atual, autorização de hardware ou
+observações reproduzíveis automaticamente para qualquer nova revisão.
 
 ## Legacy source of evidence
 
@@ -107,20 +109,15 @@ KERNEL_MODULES_SHA256=0056f8bd6a1ea02b9aa0b0f35a30adc27060888b6ae6124804e96b6740
 VMLINUX_SHA256=e080323be390b2e921ed34286794cbce18642b653fc6790ae308f61720c90ba1
 ```
 
-Therefore the pinned build environment is no longer a blocker. The environment contract may mark the reproducible build output as promotable to the physical-media pipeline, but that is not the same as authorizing a physical artifact. `bootstrap/kernel/source.json` intentionally keeps `physical_artifact_authorized=false` until the independent physical-media gates are closed.
+For the historical 6.6.52 observation, the pinned build environment was reproducible. A future source revision requires an independent, current-source repeat proof; past digests cannot satisfy that gate. The environment contract does not authorize a physical artifact. `bootstrap/kernel/source.json` intentionally keeps `physical_artifact_authorized=false` until the independent physical-media gates are closed.
 
 ## CI
 
 `.github/workflows/kernel-candidate.yml` runs the build directly from repository source. Repository-owned verifiers enforce the immutable environment contract and repeat-proof expectations rather than relying on workflow YAML alone.
 
-Current semantic split:
-
-```text
-PINNED_BUILD_ENVIRONMENT=PASS
-REPEAT_BUILD_DIGEST_MATCH=PASS
-BUILD_OUTPUT_ELIGIBLE_FOR_PHYSICAL_PIPELINE=YES
-PHYSICAL_KERNEL_AUTHORIZED=NO
-```
+Historical 6.6.52 proof was PASS. The promotion PR must separately
+report the 6.6.158 current-source repeat result and keep
+`PHYSICAL_KERNEL_AUTHORIZED=NO` until the physical-media owner grants it.
 
 This distinction is mandatory: reproducibility proves what bytes are built; it does not grant permission to mutate a physical USB device.
 
