@@ -150,7 +150,7 @@ test("verified Store projection offers install only from verified catalog plus e
   projection.destroy();
 });
 
-test("calculator has verified Native read eligibility but raw unknown catalog products stay blocked", async () => {
+test("calculator module read is ready while unsupported Native probation keeps Store installs blocked", async () => {
   const catalog = catalogPort(ready([
     candidate("calculator", "0.2.0", "Calculadora"),
     candidate("unapproved-product", "0.1.0", "Unapproved"),
@@ -167,9 +167,9 @@ test("calculator has verified Native read eligibility but raw unknown catalog pr
   const snapshot = projection.port.getSnapshot();
   assert.equal(snapshot.state, "ready");
   const calculator = snapshot.entries.find(item => item.appId === "calculator");
-  assert.equal(calculator.state, "available");
-  assert.equal(calculator.blockedReason, null);
-  assert.equal(calculator.installable, true);
+  assert.equal(calculator.state, "blocked");
+  assert.equal(calculator.blockedReason, "runtime-probation-unavailable");
+  assert.equal(calculator.installable, false);
   assert.equal(calculator.updatable, false);
   assert.equal(calculator.artifactIdentityVerified, true);
   assert.equal(calculator.provenanceVerified, true);
