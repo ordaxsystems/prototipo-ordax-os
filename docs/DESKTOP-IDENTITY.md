@@ -77,3 +77,33 @@ New desktop controls must have a real state owner and contract before being pres
 Roadmap: shared Surface identity and minimal functional desktop in `PLANO-FUNCIONAL-SURFACE-E-APPS.md`. Owner: OrdaX OS Surface. Dependencies: existing appearance/runtime/workspace/store contracts, local Inter, SVG and PNG; no new public execution contract. Scope: shared Web/Native composition, loading screen, shell, Settings previews and tokens consumed by first-party views. Risks: contrast over artwork, CSS specificity, narrow layout, image size and offline asset resolution.
 
 Acceptance requires visual/contrast regressions, existing preference/localization tests, source-graph and deterministic bundle verification, and real Chromium shell/composition smoke. Web inspection covers desktop and narrow breakpoints and both materials. Source publication is a reviewable candidate, not production activation, a signed release or proof of USB/mobile hardware operation. A visual refresh does not require a kernel rebuild or USB rewrite.
+
+
+## Account Hub workspace composition — 2026-10-10
+
+The user requested the Web composition from `washingtonmsdj/account-hub-pro`
+(commit `0f955ece6e570801976d8ed77d2cada101b7a3fa`). The structural reference is
+`src/components/web/shell.tsx`, `home.tsx` and the workspace rules in `src/styles.css`.
+The repository README declares author ownership and has no explicit LICENSE;
+layout reproduction was explicitly requested by the same user. Decision:
+REFERENCE_ONLY for React components, reducers, simulated services and AI providers;
+REIMPLEMENTED for the visual composition in the existing shared Surface.
+
+Owner: `system/surface/ui/desktop-shell.mjs` for markup, `identity.css` for composition,
+`tokens.css` for geometry and semantic policy. No second Web shell is introduced.
+The full-width header sits above the rail and workspace; the dock spans the frame.
+Home places the welcome/actions beside the application panel, with real context
+and continuation cards below. Narrow viewports stack these regions and expose
+compact, labeled launcher/Space controls. The existing artwork, symbol, fonts,
+localization, themes and capabilities remain canonical. Public `/web/` remains the
+verified Identity/runtime handoff, independent of this working Surface.
+
+No reference credentials, prototype window reducer, fake projects, simulated
+Intelligence, account session or package authority were imported. Apps still use
+the catalog, workspace, lifecycle and existing event delegation. Risks: geometry
+changes affect both Web and Native because they share the source. Acceptance:
+localized shortcuts invoke existing owners; unavailable user files remain disabled;
+launcher, window minimize/restore/close and Space menus work at desktop/mobile;
+viewport has no horizontal overflow; light/dark/high-contrast preferences retain
+one owner; build graph remains offline and dependency-free. Source and browser
+proof do not authorize a public release or enable unavailable remote services.
