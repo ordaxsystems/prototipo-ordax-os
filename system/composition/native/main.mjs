@@ -1069,12 +1069,19 @@ async function start() {
   bootScreen.setStage(surface.localization.translate("surface.boot.preparingFirstRun"));
   // First Run reads the already-verified Store projection and its matching
   // ephemeral Native current observations. It has NO installation authority.
-  const firstRunAppSelection = planFirstRunAppSelectionFromStore({
-    initialProvisioning: !firstRunStateStore.load().completed,
-    explicitlyRemovedAppIds: [],
-    storeCatalogSnapshot: storeCatalog.getSnapshot(),
-    nativeCurrentMetadata: storeCatalogComposition?.getCurrentObservations() ?? [],
-  });
+  let firstRunAppSelection = null;
+  try {
+    firstRunAppSelection = planFirstRunAppSelectionFromStore({
+      initialProvisioning: !firstRunStateStore.load().completed,
+      explicitlyRemovedAppIds: [],
+      storeCatalogSnapshot: storeCatalog.getSnapshot(),
+      nativeCurrentMetadata: storeCatalogComposition?.getCurrentObservations() ?? [],
+    });
+  } catch (error) {
+    // Conflicting Store/Native observations must not become install intents
+    // or prevent first boot. First Run proceeds without a guessed plan.
+    reportClientDiagnostic("first-run-app-selection", error);
+  }
   let firstRun = null;
   try {
     firstRun = mountFirstRunExperience(root, {
