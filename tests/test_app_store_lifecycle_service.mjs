@@ -452,7 +452,7 @@ test("signed candidate mismatch denial cannot be replayed after catalog reconcil
   assert.equal(calls, 1);
 });
 
-test("unsigned runtime capability cannot be invented by a verified catalog for optional apps", async () => {
+test("signed module read alone cannot authorize Store install without Native probation", async () => {
   let delegated = 0;
   const executeLifecycle = async (plan) => {
     delegated += 1;
@@ -480,7 +480,7 @@ test("unsigned runtime capability cannot be invented by a verified catalog for o
     });
     const denied = await runtime.requestLifecycle(ask);
     assert.equal(denied.state,"rejected");
-    assert.equal(denied.reason,"runtime-module-read-unavailable");
+    assert.equal(denied.reason,"runtime-probation-unavailable");
     assert.strictEqual(await runtime.requestLifecycle(ask),denied,
       "same requestId remains rejected after checks change");
   }
