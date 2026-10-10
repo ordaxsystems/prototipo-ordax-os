@@ -277,9 +277,13 @@ export function createVerifiedAppStoreProjection({
   let destroyed = false;
   let generation = 0;
   let snapshot = unavailable("verified-store-projection-loading");
+  let currentObservations = Object.freeze([]);
 
-  const emit = (next) => {
+  const emit = (next, observations = []) => {
     snapshot = validateAppStoreCatalogSnapshot(next);
+    // Transient read-through of the SAME native verified current-slot reads.
+    // Cleared on unavailable/refresh to prevent stale First Run decisions.
+    currentObservations = Object.freeze([...observations]);
     for (const listener of [...listeners]) listener(snapshot);
   };
 
@@ -288,7 +292,10 @@ export function createVerifiedAppStoreProjection({
   const build = async (signal) => {
     const verified = validateVerifiedAppStoreCatalogSnapshot(catalog.getSnapshot());
     if (verified.state !== "ready") {
-      return unavailable(verified.reason ?? "verified-catalog-unavailable");
+      return {
+        catalog: unavailable(verified.reason ?? "verified-catalog-unavailable"),
+        observations: [],
+      };
     }
 
     const candidates = new Map(verified.entries.map((entry) => [entry.appId, entry]));
@@ -297,6 +304,7 @@ export function createVerifiedAppStoreProjection({
       ...verified.entries.map((entry) => entry.appId),
     ])].sort();
 
+    const observed = new Map();
     const resolved = await mapInSourceOrder(appIds, async (appId) => {
       if (signal.aborted) return null;
       const candidate = candidates.get(appId) ?? null;
@@ -321,6 +329,7 @@ export function createVerifiedAppStoreProjection({
           componentId: appId,
           state: "current",
         });
+        observed.set(appId, current);
       } catch {
         if (signal.aborted || candidate === null) return null;
         return blockedEntry({
@@ -335,15 +344,18 @@ export function createVerifiedAppStoreProjection({
     }, signal);
 
     if (signal.aborted) {
-      return unavailable("verified-store-projection-superseded");
+      return { catalog: unavailable("verified-store-projection-superseded"), observations: [] };
     }
-    return validateAppStoreCatalogSnapshot({
-      schema: APP_STORE_CATALOG_SCHEMA,
-      state: "ready",
-      entries: resolved.filter((entry) => entry !== null && entry !== undefined),
-      reason: null,
-      authority: "none",
-    });
+    return {
+      catalog: validateAppStoreCatalogSnapshot({
+        schema: APP_STORE_CATALOG_SCHEMA,
+        state: "ready",
+        entries: resolved.filter((entry) => entry !== null && entry !== undefined),
+        reason: null,
+        authority: "none",
+      }),
+      observations: appIds.map((appId) => observed.get(appId)).filter(Boolean),
+    };
   };
 
   const refresh = async () => {
@@ -361,11 +373,11 @@ export function createVerifiedAppStoreProjection({
     try {
       next = await build(controller.signal);
     } catch {
-      next = unavailable("verified-store-projection-unavailable");
+      next = { catalog: unavailable("verified-store-projection-unavailable"), observations: [] };
     }
     if (destroyed || requestGeneration !== generation) return snapshot;
     if (activeRefresh === controller) activeRefresh = null;
-    emit(next);
+    emit(next.catalog, next.observations);
     return snapshot;
   };
 
@@ -394,12 +406,16 @@ export function createVerifiedAppStoreProjection({
   return Object.freeze({
     port,
     refresh,
+    getCurrentObservations() {
+      return currentObservations;
+    },
     destroy() {
       if (destroyed) return;
       destroyed = true;
       generation += 1;
       activeRefresh?.abort();
       activeRefresh = null;
+      currentObservations = Object.freeze([]);
       unsubscribeCatalog?.();
       listeners.clear();
     },
