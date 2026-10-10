@@ -591,16 +591,20 @@ export function mountFirstRunExperience(
     if (firstRunAppSelection !== null) {
       const appSummary = el(documentObject, "section", "ordax-first-run-tile");
       appSummary.dataset.firstRunEssentials = "";
-      appSummary.append(
-        el(documentObject, "strong", "", "Aplicativos essenciais"),
-        el(documentObject, "p", "",
-          `Pacotes independentes já reconhecidos: ${firstRunAppSelection.alreadyInstalledAppIds.length}. `
-          + `Elegíveis para distribuição verificada: ${firstRunAppSelection.eligibleCandidateAppIds.length}. `
-          + `Preservados por remoção/fora do primeiro uso: ${firstRunAppSelection.suppressedAppIds.length}.`),
-        el(documentObject, "p", "",
-          "Este resumo é somente leitura. Não instala aplicativos, não considera arquivos em cache como instalados e não altera a escolha de desinstalação. "
-          + "Aplicativos embutidos ainda fora do inventário da Loja não são contabilizados como pacotes independentes."),
-      );
+      appSummary.append(el(documentObject, "strong", "", "Aplicativos essenciais"));
+      for (const [label, count] of [
+        ["Pacotes independentes confirmados:", firstRunAppSelection.alreadyInstalledAppIds.length],
+        ["Candidatos verificados para futura distribuição:", firstRunAppSelection.eligibleCandidateAppIds.length],
+        ["Remoção preservada ou fora do primeiro uso:", firstRunAppSelection.suppressedAppIds.length],
+        ["Ainda sem comprovação de distribuição:", firstRunAppSelection.unavailableAppIds.length],
+      ]) {
+        const line = el(documentObject, "p", "", label);
+        line.append(documentObject.createTextNode(` ${count}`));
+        appSummary.append(line);
+      }
+      appSummary.append(el(documentObject, "p", "",
+        "Resumo somente leitura. Nenhum aplicativo adicional foi instalado. Apps embutidos fora do catálogo verificado não são contabilizados como pacotes independentes."
+      ));
       body.append(appSummary);
     }
     if (completionError) {
