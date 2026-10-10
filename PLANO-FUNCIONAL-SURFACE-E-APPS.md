@@ -1,5 +1,7 @@
 # OrdaX — plano funcional da Surface e dos aplicativos principais
 
+> **Composição Web — 10/10/2026:** pedido explícito de adaptar o workspace do Account Hub. Reimplementação no shell compartilhado existente, sem importar serviços ou estado simulado. Header, sidebar, Home e dock usam tokens, catálogo e eventos canônicos; [owner, limites e aceite](docs/DESKTOP-IDENTITY.md#account-hub-workspace-composition--2026-10-10).
+
 > **Incremento de 09/10/2026 — Studio na navegação:** pedido explícito do usuário, exceção à rodada de polimento. Sidebar compartilhada usa o app/lifecycle existente. O painel de host informa a ausência da interface completa e não concede execução. Integração da UI canônica continua pendente; [owners, risco e aceite](docs/STUDIO-WEB-AVAILABILITY.md).
 
 > **Revisão mobile do Studio — 09/10/2026:** hierarquia única, ações com descrições e alvos de toque, ajuda progressiva e layout por largura da janela. Usa os tokens do OS; não cria outro source Studio. Disclosures permanecem abertos durante reconciliação. [Escopo e critérios](docs/STUDIO-WEB-AVAILABILITY.md).
