@@ -487,7 +487,7 @@ body { background: var(--ordax-bg); font-weight: 400; }
   .ordax-brandbar > .ordax-brand { display: flex; }
   .ordax-brandbar .ordax-brand-word { display: inline; }
   .ordax-command { width: 100%; min-width: 44px; grid-template-columns: 18px minmax(0, 1fr); padding-inline: 12px; }
-  .ordax-command { width: 44px; justify-self: end; grid-template-columns: 18px; }
+  .ordax-command { width: 44px; min-height: 44px; justify-self: end; grid-template-columns: 18px; }
   .ordax-command kbd, .ordax-command-copy { display: none; }
   .ordax-home-panel { display: flex; flex-direction: column; padding: 24px 16px; gap: 16px; }
   .ordax-home-hero { width: 100%; min-height: 200px; padding: 12px 0; }
