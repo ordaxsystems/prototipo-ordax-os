@@ -162,6 +162,14 @@ jobs:
           test "$(git -C writer-source rev-parse HEAD)" = "$WRITER_SOURCE_COMMIT"
           test "$(git -C operator rev-parse HEAD)" = "$ORDAX_SOURCE_COMMIT"
 
+      - name: Resolve exact release kernel ABI through canonical owner
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 operator/bootstrap/kernel/ci_env.py \
+            --source-contract release-source/bootstrap/kernel/source.json \
+            --github-env "$GITHUB_ENV"
+
       - name: Install exact build dependencies
         shell: bash
         run: |
@@ -189,8 +197,8 @@ jobs:
             --work-dir "$work/kernel-work" \
             --out-dir "$work/kernel"
           python bootstrap/kernel/verify.py "$work/kernel"
-          test -s "$work/kernel/vmlinuz-6.6.52"
-          test -s "$work/kernel/kernel-modules-6.6.52.tar"
+          test -s "$work/kernel/vmlinuz-$ORDAX_KERNEL_VERSION"
+          test -s "$work/kernel/kernel-modules-$ORDAX_KERNEL_VERSION.tar"
 
       - name: Build and verify exact Stable Base
         shell: bash
@@ -200,7 +208,7 @@ jobs:
           work="$RUNNER_TEMP/first-physical-payload"
           sudo -E env ORDAX_SOURCE_COMMIT="$RELEASE_SOURCE_COMMIT" \
             python bootstrap/stable-base/build.py build \
-              --kernel-modules "$work/kernel/kernel-modules-6.6.52.tar" \
+              --kernel-modules "$work/kernel/kernel-modules-$ORDAX_KERNEL_VERSION.tar" \
               --out-dir "$work/stable-base" \
               --cache-dir "$work/stable-base-cache" \
               > "$work/metadata/stable-base-build.json"
@@ -328,7 +336,7 @@ jobs:
           cp release-source/boot/portable-v2/loader/loader.conf "$out/sources/loader-config"
           cp release-source/boot/portable-v2/loader/entries/ordax-portable.conf "$out/sources/loader-normal"
           cp release-source/boot/portable-v2/loader/entries/ordax-portable-recovery.conf "$out/sources/loader-recovery"
-          cp "$work/kernel/vmlinuz-6.6.52" "$out/sources/kernel"
+          cp "$work/kernel/vmlinuz-$ORDAX_KERNEL_VERSION" "$out/sources/kernel"
           cp "$work/initramfs/initramfs.cpio.gz" "$out/sources/initramfs"
           cp "$work/capsule/bootstrap.erofs" "$out/sources/bootstrap-capsule"
           cp operator/bootstrap/trust/release-ed25519.json "$out/sources/release-trust"
