@@ -64,8 +64,14 @@ def main() -> int:
     observed = {name: package_version(name) for name in packages}
     # A signed kernel cannot inherit the historical unsigned kernel toolchain.
     # The package is also version-bound below to this exact Ubuntu snapshot.
-    if "gpg" in packages and shutil.which("gpg") is None:
-        fail("signed kernel environment lacks executable gpg")
+    if "gpg" in packages:
+        if "gpg-agent" not in packages:
+            fail("signed kernel environment lacks pinned gpg-agent package")
+        for tool in ("gpg", "gpg-agent"):
+            if shutil.which(tool) is None:
+                fail(f"signed kernel environment lacks executable {tool}")
+        if observed["gpg"] != observed["gpg-agent"]:
+            fail("signed kernel gpg/agent package versions disagree")
 
     if contract["proof"].get("package_versions_pinned"):
         if set(expected) != set(packages):

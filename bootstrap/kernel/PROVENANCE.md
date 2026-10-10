@@ -93,7 +93,7 @@ EXACT_APT_PACKAGE_VERSIONS=17
 CA_BUNDLE_SHA256=9481fcd95f41b221f02f14d896535fe500bec539bc563c4cdca1acee483a8bdd
 ```
 
-The image tag is informational only; the manifest digest is the immutable image identity. The build environment verifier requires exact architecture, snapshot, package set, package versions and CA-bundle digest before the build is accepted. The 17-package observation above is historical for Linux 6.6.52. The signed Linux 6.6.158 source requires an **additional pinned gpg package**, for 18 direct packages total, from the same Ubuntu 20260910 snapshot. The reviewed gpg pin is `2.4.4-2ubuntu17.6` (published 2026-09-03). This new environment is `pinned-repeat-proof-required` until its exact-source two-build proof passes; no historical PASS becomes a current PASS by declaration.
+The image tag is informational only; the manifest digest is the immutable image identity. The build environment verifier requires exact architecture, snapshot, package set, package versions and CA-bundle digest before the build is accepted. The 17-package observation above is historical for Linux 6.6.52. The signed Linux 6.6.158 source requires **gpg and gpg-agent pinned as direct packages**, for 19 direct packages total, from the same Ubuntu 20260910 snapshot. Both pins are `2.4.4-2ubuntu17.6` (published 2026-09-03). With `--no-install-recommends`, the `gpg` package alone installs its command but not the agent required to import an independently pinned public signing key. A new build must prove actual OpenPGP authentication and identical output digests, never skip either check. This new environment is `pinned-repeat-proof-required` until its exact-source two-build proof passes; no historical PASS becomes a current PASS by declaration.
 
 ## Repeat proof
 

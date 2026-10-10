@@ -41,7 +41,7 @@ KERNEL_BUILD_ENVIRONMENT_PROMOTABLE=YES
 PHYSICAL_KERNEL_AUTHORIZED=NO
 ```
 
-The immutable kernel environment is now pinned by OCI manifest digest, APT snapshot, exact package versions and CA-bundle digest in `docs/contracts/kernel-build-environment.json`. Two independent builds produced identical config, modules and bzImage SHA-256 values, so the build-environment portion of this gate is closed. `PHYSICAL_KERNEL_AUTHORIZED=NO` remains a separate physical-media decision and is not changed by reproducibility proof.
+The historical kernel 6.6.52 environment was pinned by OCI manifest digest, APT snapshot, exact package versions and CA-bundle digest in `docs/contracts/kernel-build-environment.json`. Two independent builds proved identical config, modules and bzImage SHA-256 values **for that historical source**. The signed kernel 6.6.158 candidate adds `gpg` and `gpg-agent` to the same snapshot and currently has `pinned-repeat-proof-required`, so historical results do not close the new current-source repeat proof. `PHYSICAL_KERNEL_AUTHORIZED=NO` remains a separate physical-media decision and is not changed by reproducibility proof.
 
 ## Gate 2 - Reproducible minimal bootstrap source
 

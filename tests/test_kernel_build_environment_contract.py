@@ -28,7 +28,12 @@ class KernelBuildEnvironmentContractTests(unittest.TestCase):
         source = json.loads((ROOT / "bootstrap/kernel/source.json").read_text(encoding="utf-8"))
         if source.get("upstream_signature"):
             self.assertIn("gpg", value["apt"]["packages"])
-            self.assertEqual(value["apt"]["expected_versions"]["gpg"], "2.4.4-2ubuntu17.6")
+            self.assertIn("gpg-agent", value["apt"]["packages"])
+            self.assertEqual(value["apt"]["expected_versions"]["gpg"], value["apt"]["expected_versions"]["gpg-agent"])
+            verifier = (ROOT / "bootstrap/kernel/verify_environment.py").read_text(encoding="utf-8")
+            self.assertIn('if "gpg-agent" not in packages:', verifier)
+            self.assertIn('for tool in ("gpg", "gpg-agent"):', verifier)
+            self.assertIn('observed["gpg"] != observed["gpg-agent"]', verifier)
 
     def test_promotion_requires_pinned_versions_and_repeat_digest_proof(self):
         value = self.load()

@@ -133,7 +133,9 @@ jobs:
               # GnuPG must be executable inside the exact digest- and
               # package-version-pinned build environment, not on the host.
               command -v gpg
+              command -v gpg-agent
               gpg --version
+              gpg-agent --version
               python3 bootstrap/kernel/verify_environment.py \
                 docs/contracts/kernel-build-environment.json \
                 --base-image "$BASE_IMAGE" \
