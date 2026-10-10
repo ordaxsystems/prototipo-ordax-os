@@ -18,7 +18,17 @@ function fixture(hash = "#dados-pessoais") {
       addEventListener() {}, close() { this.open = false; }, contains: () => false,
       focus() { document.activeElement = this; },
     });
-    return nodes.get(id);
+    const node = nodes.get(id);
+    if (!node.tracksMarkup) {
+      let markup = node.innerHTML;
+      node.markupWrites = 0;
+      Object.defineProperty(node, "innerHTML", {
+        get: () => markup,
+        set(value) { markup = value; node.markupWrites++; },
+      });
+      node.tracksMarkup = true;
+    }
+    return node;
   };
   const document = { body: { dataset: { page: "conta" } }, activeElement: { id: "" },
     getElementById: get, querySelector: () => null, querySelectorAll: () => [], addEventListener() {} };
@@ -133,4 +143,26 @@ test("mobile navigation and More partition every account section without repeate
   assert.deepEqual([...primary, ...more].sort(), [...sidebar, "suporte"].sort());
   assert.ok(f.get("mobile-navigation").innerHTML.includes('class="button ghost active"'));
   assert.ok(f.get("more-navigation").innerHTML.includes('href="#integracoes" aria-current="page"'));
+});
+
+
+test("session revalidation preserves unrelated controls while still replacing identity-bearing content", () => {
+  for (const section of ["suporte", "preferencias", "consumo", "atividade"]) {
+    const f = fixture(`#${section}`);
+    const content = f.get("account-content");
+    const initialWrites = content.markupWrites;
+    for (const status of ["authenticated", "checking", "unavailable", "anonymous"]) {
+      f.emit(status, status === "authenticated" ? "person@example.test" : "");
+      assert.equal(content.markupWrites, initialWrites, `${section}: ${status} must preserve its controls`);
+    }
+  }
+  for (const section of ["visao-geral", "dados-pessoais", "seguranca"]) {
+    const f = fixture(`#${section}`);
+    f.emit("authenticated", "person@example.test");
+    assert.ok(f.get("account-content").innerHTML.includes("person@example.test"));
+    const before = f.get("account-content").markupWrites;
+    f.emit("checking");
+    assert.ok(f.get("account-content").markupWrites > before);
+    assert.ok(!f.get("account-content").innerHTML.includes("person@example.test"));
+  }
 });

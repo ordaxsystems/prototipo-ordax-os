@@ -20,12 +20,12 @@
 
   // One catalog owns routes, navigation, descriptions and unavailable service presentation.
   const sections = Object.freeze([
-    { id: "visao-geral", title: "Visão geral", icon: "dashboard", description: "Sua identidade, assinatura e recursos em um só lugar." },
-    { id: "dados-pessoais", title: "Dados pessoais", icon: "user", description: "Seu perfil e suas informações cadastrais.", owner: "Identidade OrdaX", capabilities: ["E-mail da conta", "Edição de dados cadastrais", "Foto de perfil"] },
+    { id: "visao-geral", sessionDependent: true, title: "Visão geral", icon: "dashboard", description: "Sua identidade, assinatura e recursos em um só lugar." },
+    { id: "dados-pessoais", sessionDependent: true, title: "Dados pessoais", icon: "user", description: "Seu perfil e suas informações cadastrais.", owner: "Identidade OrdaX", capabilities: ["E-mail da conta", "Edição de dados cadastrais", "Foto de perfil"] },
     { id: "assinatura", title: "Plano e assinatura", icon: "crown", description: "Seu plano, benefícios e opções de assinatura.", owner: "Direitos e assinaturas OrdaX", capabilities: ["Plano contratado", "Catálogo oficial de planos", "Alteração e cancelamento"] },
     { id: "consumo", title: "Consumo e limites", icon: "chart", description: "Acompanhe seus recursos em todo o ecossistema OrdaX.", owner: "Medição de uso OrdaX", capabilities: ["Créditos de IA", "Armazenamento", "Chamadas de API", "Histórico por período"] },
     { id: "faturamento", title: "Pagamentos e faturas", icon: "card", description: "Métodos de pagamento, cobranças e documentos fiscais.", owner: "Faturamento OrdaX", capabilities: ["Métodos de pagamento", "Faturas e recibos", "Dados fiscais"] },
-    { id: "seguranca", title: "Segurança e acesso", icon: "shield", description: "Proteja sua identidade e controle o acesso à sua conta.", owner: "Identidade OrdaX", capabilities: ["Sessão neste navegador", "Senha", "Verificação em duas etapas", "Recuperação", "Eventos de acesso"] },
+    { id: "seguranca", sessionDependent: true, title: "Segurança e acesso", icon: "shield", description: "Proteja sua identidade e controle o acesso à sua conta.", owner: "Identidade OrdaX", capabilities: ["Sessão neste navegador", "Senha", "Verificação em duas etapas", "Recuperação", "Eventos de acesso"] },
     { id: "dispositivos", title: "Meus dispositivos", icon: "devices", description: "Dispositivos e sessões vinculados à sua conta.", owner: "Sessões e dispositivos OrdaX", capabilities: ["Sessões ativas", "Dispositivos OrdaX OS", "Encerramento remoto"] },
     { id: "privacidade", title: "Dados e privacidade", icon: "fingerprint", description: "Seus dados, suas escolhas. Você está no controle.", owner: "Privacidade OrdaX", capabilities: ["Exportação de dados", "Consentimentos", "Exclusão da conta"] },
     { id: "integracoes", title: "Integrações", icon: "globe", description: "Contas conectadas e autorizações de aplicativos.", owner: "Integrações OrdaX", capabilities: ["Conexões autorizadas", "Revogação de conexões"] },
@@ -327,7 +327,9 @@
     const focused = document.activeElement?.id;
     session = value;
     renderSession();
-    renderContent();
+    // Revalidation must clear personal data, but not replace unrelated controls
+    // while someone is typing in Help or changing presentation preferences.
+    if (byId.get(state.section).sessionDependent) renderContent();
     if (focused && !document.activeElement?.id) (document.getElementById(focused) || document.getElementById("session-status-title"))?.focus({ preventScroll: true });
   });
   void account.readSession();
