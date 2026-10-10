@@ -56,6 +56,22 @@ class KernelCIEnvTests(unittest.TestCase):
         with self.assertRaises(CI.KernelCIError):
             CI.canonical_version(self.root / "missing.json")
 
+    def test_explicit_release_source_uses_its_own_version_not_current_pin(self):
+        self.source["version"] = "6.6.159"
+        self.save()
+        github_env = self.root / "github_env"
+        env = os.environ.copy()
+        env["GITHUB_ENV"] = str(github_env)
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--source-contract", str(self.contract),
+             "--github-env", str(github_env)],
+            cwd=self.root, env=env, capture_output=True, text=True, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(github_env.read_text(encoding="utf-8"),
+                         "ORDAX_KERNEL_VERSION=6.6.159\n")
+        self.assertEqual(CI.canonical_version(self.contract), "6.6.159")
+
     def test_github_env_cannot_be_written_to_arbitrary_path(self):
         out = self.root / "github_env"
         other = self.root / "other"

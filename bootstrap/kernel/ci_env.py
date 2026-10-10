@@ -44,9 +44,11 @@ def canonical_version(path: Path = CANONICAL_SOURCE) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--github-env", type=Path, help="GitHub Actions GITHUB_ENV file")
+    parser.add_argument("--source-contract", type=Path, default=CANONICAL_SOURCE,
+                        help="exact checked-out release source for multi-revision builds")
     args = parser.parse_args()
     try:
-        version = canonical_version()
+        version = canonical_version(args.source_contract)
         if args.github_env:
             if "GITHUB_ENV" not in os.environ or args.github_env != Path(os.environ["GITHUB_ENV"]):
                 raise KernelCIError("GITHUB_ENV destination is not the runner-provided path")
