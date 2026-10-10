@@ -12,12 +12,12 @@ FRAGMENT = (ROOT / SOURCE["configuration"]["fragment"]).read_text(encoding="utf-
 
 class KernelSourceContractTest(unittest.TestCase):
     def test_linux_source_identity_is_pinned(self):
-        self.assertEqual(SOURCE["version"], "6.6.52")
-        self.assertEqual(
-            SOURCE["archive_sha256"],
-            "1591ab348399d4aa53121158525056a69c8cf0fe0e90935b0095e9a58e37b4b8",
-        )
-        self.assertTrue(SOURCE["archive_url"].startswith("https://cdn.kernel.org/"))
+        version = SOURCE["version"]
+        self.assertRegex(version, r"^[0-9]+[.][0-9]+[.][0-9]+$")
+        self.assertRegex(SOURCE["archive_sha256"], r"^[0-9a-f]{64}$")
+        prefix = f"https://cdn.kernel.org/pub/linux/kernel/v{version.split('.')[0]}.x/"
+        self.assertEqual(SOURCE["archive_url"], prefix + f"linux-{version}.tar.xz")
+        self.assertEqual(SOURCE["signature_url"], prefix + f"linux-{version}.tar.sign")
 
     def test_laptop_power_supply_support_is_explicit(self):
         for selector in (

@@ -13,9 +13,6 @@
       "id": "linux-kernel",
       "kind": "source-archive",
       "source_authority": "bootstrap/kernel/source.json",
-      "version": "6.6.52",
-      "archive_url": "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.52.tar.xz",
-      "archive_sha256": "1591ab348399d4aa53121158525056a69c8cf0fe0e90935b0095e9a58e37b4b8",
       "delivery_scope": ["usb", "native"],
       "license": {"status": "unresolved-in-this-inventory", "spdx": null}
     },
