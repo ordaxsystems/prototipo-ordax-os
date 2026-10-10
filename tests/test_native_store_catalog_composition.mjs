@@ -7,7 +7,7 @@ import {
 import {
   createNativeStoreCatalogComposition,
 } from "../system/composition/native/store-catalog.mjs";
-import { planFirstRunAppSelectionFromStore } from "../system/services/apps/first-run-selection.mjs";
+import { listFirstRunDefaultAppIds, planFirstRunAppSelectionFromStore } from "../system/services/apps/first-run-selection.mjs";
 import { listExternalFirstPartyComponentIds } from "../system/services/apps/external-first-party-policy.mjs";
 
 const COMMIT = "a".repeat(40);
@@ -201,7 +201,8 @@ test("Native first-run selection shares Store current-state reads and never rest
     initialProvisioning,
     explicitlyRemovedAppIds: [],
     storeCatalogSnapshot: composition.port.getSnapshot(),
-    nativeCurrentMetadata: composition.getCurrentObservations(),
+    nativeCurrentMetadata: composition.getCurrentObservations()
+      .filter(item => listFirstRunDefaultAppIds().includes(item.componentId)),
   });
   const count = nativeReads;
   assert.deepEqual(observe(true).eligibleCandidateAppIds, ["notes"]);
