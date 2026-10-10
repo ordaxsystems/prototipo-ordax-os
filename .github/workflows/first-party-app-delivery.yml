@@ -26,6 +26,9 @@ on:
       - 'system/contracts/verified-app-store-catalog.mjs'
       - 'system/services/apps/delivery-policy.mjs'
       - 'system/services/apps/first-run-selection.mjs'
+      - 'system/surface/ui/first-run.mjs'
+      - 'system/services/i18n/first-run.mjs'
+      - 'tests/test_first_run_contract.py'
       - 'tests/test_first_run_selection.mjs'
       - 'docs/APP-PORTFOLIO-AND-PREINSTALL.md'
       - 'system/services/apps/external-first-party-policy.mjs'
@@ -86,6 +89,9 @@ on:
       - 'system/contracts/verified-app-store-catalog.mjs'
       - 'system/services/apps/delivery-policy.mjs'
       - 'system/services/apps/first-run-selection.mjs'
+      - 'system/surface/ui/first-run.mjs'
+      - 'system/services/i18n/first-run.mjs'
+      - 'tests/test_first_run_contract.py'
       - 'tests/test_first_run_selection.mjs'
       - 'docs/APP-PORTFOLIO-AND-PREINSTALL.md'
       - 'system/services/apps/external-first-party-policy.mjs'
@@ -159,6 +165,8 @@ jobs:
           node --check system/services/apps/delivery-policy.mjs
           node --check system/services/apps/first-run-selection.mjs
           node --check tests/test_first_run_selection.mjs
+          node --check system/surface/ui/first-run.mjs
+          node --check system/services/i18n/first-run.mjs
           node --check system/services/apps/external-first-party-policy.mjs
           python -m py_compile tools/app-policy/render_external_first_party_policy.py
           python tools/app-policy/render_external_first_party_policy.py --check
@@ -198,6 +206,7 @@ jobs:
           set -euo pipefail
           node --test tests/test_first_party_app_delivery.mjs
           node --test tests/test_first_run_selection.mjs
+          python -m unittest tests/test_first_run_contract.py
           node --test tests/test_file_association_manifest.mjs
           node --test tests/test_file_open_registry.mjs
           node --test tests/test_app_presentation_manifest.mjs
