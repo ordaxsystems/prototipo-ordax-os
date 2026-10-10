@@ -100,6 +100,16 @@ class NativeComponentSlotTests(unittest.TestCase):
                 **policy,
                 "native_loopback_broker_supported_components": ["internet", "internet"],
             })
+        with self.assertRaises(generator["MetadataPolicyError"]):
+            generator["render"]({
+                **policy,
+                "native_loopback_broker_supported_components": ["calculator", "internet", "unknown-app"],
+            })
+        with self.assertRaises(generator["MetadataPolicyError"]):
+            generator["render"]({
+                **policy,
+                "native_loopback_broker_supported_components": ["internet", "local-ai-service"],
+            })
 
     def test_read_and_health_mutation_allowlists_are_derived_and_separate(self):
         from native_store_metadata_policy import (
