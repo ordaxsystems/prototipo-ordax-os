@@ -1,6 +1,6 @@
 # Kernel Provenance
 
-Status: BUILDER AUTENTICADO / PROMOÇÃO LTS EM PR / SEM AUTORIZAÇÃO FÍSICA
+Status: KERNEL 6.6.158 AUTENTICADO E REPRODUZIDO EM CI / PROMOÇÃO EM PR / SEM AUTORIZAÇÃO FÍSICA
 
 ## Canonical prototype source
 
@@ -14,10 +14,12 @@ versão, a URL e o SHA-256 do upstream. A configuração é
 `bootstrap/kernel/build.py`. A proposta assinada preserva a sua identidade
 revisada sob `bootstrap/kernel/candidates/`, mas não é fonte ativa paralela.
 
-Nesta PR de migração, a revisão assinada 6.6.158 é compilada pelos consumidores
-reais. `pinned_environment_resolved=false` e
-`physical_artifact_authorized=false` permanecem até evidências atuais e
-autorização independente; **a main só altera seu kernel com o merge validado**.
+Na PR #1616, a revisão assinada 6.6.158 foi compilada em ambiente imutável
+com 19 pacotes fixados. O run GitHub Actions [38094493855](https://github.com/ordaxsystems/ordax-os/actions/runs/38094493855)
+verificou OpenPGP, dois builds independentes e digests idênticos dos três
+artefatos. O source passa a declarar `pinned_environment_resolved=true`;
+`physical_artifact_authorized=false` permanece bloqueado e a main só adota
+o novo pin após o merge com CI verde do head final.
 
 Os arquivos abaixo sobre 6.6.52 e seus digests são registros históricos de
 provas executadas, **não** identidade atual, autorização de hardware ou
@@ -93,7 +95,7 @@ EXACT_APT_PACKAGE_VERSIONS=17
 CA_BUNDLE_SHA256=9481fcd95f41b221f02f14d896535fe500bec539bc563c4cdca1acee483a8bdd
 ```
 
-The image tag is informational only; the manifest digest is the immutable image identity. The build environment verifier requires exact architecture, snapshot, package set, package versions and CA-bundle digest before the build is accepted. The 17-package observation above is historical for Linux 6.6.52. The signed Linux 6.6.158 source requires **gpg and gpg-agent pinned as direct packages**, for 19 direct packages total, from the same Ubuntu 20260910 snapshot. Both pins are `2.4.4-2ubuntu17.6` (published 2026-09-03). With `--no-install-recommends`, the `gpg` package alone installs its command but not the agent required to import an independently pinned public signing key. A new build must prove actual OpenPGP authentication and identical output digests, never skip either check. This new environment is `pinned-repeat-proof-required` until its exact-source two-build proof passes; no historical PASS becomes a current PASS by declaration.
+The image tag is informational only; the manifest digest is the immutable image identity. The build environment verifier requires exact architecture, snapshot, package set, package versions and CA-bundle digest before the build is accepted. The 17-package observation above is historical for Linux 6.6.52. The signed Linux 6.6.158 source requires **gpg and gpg-agent pinned as direct packages**, for 19 direct packages total, from the same Ubuntu 20260910 snapshot. Both pins are `2.4.4-2ubuntu17.6` (published 2026-09-03). With `--no-install-recommends`, the `gpg` package alone installs its command but not the agent required to import an independently pinned public signing key. A new build must prove actual OpenPGP authentication and identical output digests, never skip either check. This 19-package environment completed its exact-source two-build proof in run [38094493855](https://github.com/ordaxsystems/ordax-os/actions/runs/38094493855) against source commit `1f0ee7efaa5eb60f786221a1053ce91464759993`: `KERNEL_REPRODUCIBILITY=PASS`, `REPEAT_BUILD_DIGEST_MATCH=YES`. The current proof and old proof are separately recorded in `docs/contracts/kernel-build-environment.json`. CI still needs to validate this final metadata reconciliation before merge.
 
 ## Repeat proof
 
@@ -115,9 +117,11 @@ For the historical 6.6.52 observation, the pinned build environment was reproduc
 
 `.github/workflows/kernel-candidate.yml` runs the build directly from repository source. Repository-owned verifiers enforce the immutable environment contract and repeat-proof expectations rather than relying on workflow YAML alone.
 
-Historical 6.6.52 proof was PASS. The promotion PR must separately
-report the 6.6.158 current-source repeat result and keep
-`PHYSICAL_KERNEL_AUTHORIZED=NO` until the physical-media owner grants it.
+Historical 6.6.52 proof was PASS. The 6.6.158 exact-source repeat run
+38094493855 is also PASS, with current hashes recorded in the environment
+contract. The PR must still validate its final commit independently.
+`PHYSICAL_KERNEL_AUTHORIZED=NO` remains until explicit independent
+physical-media proof and authorization.
 
 This distinction is mandatory: reproducibility proves what bytes are built; it does not grant permission to mutate a physical USB device.
 

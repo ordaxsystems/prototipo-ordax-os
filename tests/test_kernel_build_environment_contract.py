@@ -58,6 +58,38 @@ class KernelBuildEnvironmentContractTests(unittest.TestCase):
             self.assertTrue(proof["repeat_build_digest_match"])
             self.assertTrue(proof["promotable_to_physical"])
 
+    def test_current_pinned_repeat_proof_matches_the_selected_kernel(self):
+        source = json.loads((ROOT / "bootstrap/kernel/source.json").read_text(encoding="utf-8"))
+        env = self.load()
+        proof = env["repeat_proof"]
+        version = source["version"]
+        expected_names = {
+            f"kernel-{version}.config",
+            f"kernel-modules-{version}.tar",
+            f"vmlinuz-{version}",
+        }
+
+        self.assertEqual(bool(source["build"]["pinned_environment_resolved"]), bool(env["proof"]["repeat_build_digest_match"]))
+        if not source["build"]["pinned_environment_resolved"]:
+            self.assertFalse(env["proof"]["promotable_to_physical"])
+            return
+
+        self.assertEqual(env["status"], "pinned-repeat-proof-complete")
+        self.assertEqual(proof["kernel_version"], version)
+        self.assertEqual(proof["result"], "pass")
+        self.assertRegex(proof["source_commit"], COMMIT_RE)
+        self.assertIsInstance(proof["workflow_run_id"], int)
+        self.assertGreater(proof["workflow_run_id"], 0)
+        self.assertEqual(set(proof["artifacts"]), expected_names)
+        for digest in proof["artifacts"].values():
+            self.assertRegex(digest, SHA256_RE)
+        manifest = json.loads((ROOT / "docs/contracts/minimal-bootstrap.json").read_text(encoding="utf-8"))
+        kernel = next(g for g in manifest["artifact_groups"] if g["id"] == "kernel")["artifacts"]
+        self.assertEqual(len(kernel), 1)
+        self.assertEqual(proof["artifacts"][f"vmlinuz-{version}"], kernel[0]["sha256"])
+        self.assertFalse(source["build"]["physical_artifact_authorized"])
+        self.assertFalse(manifest["physical_write_allowed"])
+
     def test_artifact_reproducibility_compares_same_current_source(self):
         value = self.load()
         policy = value["artifact_digest_policy"]

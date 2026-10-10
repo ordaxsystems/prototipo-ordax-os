@@ -25,6 +25,18 @@ A execução [Full Bootstrap Media Proof 38092513643](https://github.com/ordaxsy
 
 O contrato `system/base-update/candidate.json` precisa usar exatamente esses dois digests. O teste `tests/test_base_update_signed_candidate.py` exige a igualdade com os artefatos do manifesto para impedir desvio silencioso.
 
+## Prova atual da fonte assinada 6.6.158
+
+A execução imutável [38094493855](https://github.com/ordaxsystems/ordax-os/actions/runs/38094493855) executada no head `1f0ee7efaa5eb60f786221a1053ce91464759993` terminou com:
+
+- `KERNEL_BUILD_ENVIRONMENT=PASS`, `PACKAGE_COUNT=19` (inclui `gpg` e `gpg-agent` com versões exatas do snapshot de 2026-09-10).
+- Autenticação `upstream_signature.status=verified` e fingerprint `647F28654894E3BD457199BE38DBBDC86092693E`.
+- `KERNEL_REPRODUCIBILITY=PASS`; `REPEAT_BUILD_DIGEST_MATCH=YES`.
+- Kernel, módulos e configuração com SHA-256 idênticos aos três digests já documentados acima.
+- No mesmo head, os checks Native ESP, QEMU Portable, initramfs, Stable Base, Creator e full bootstrap media proof passaram em CI; as etapas `publish` e `build-authorized-candidate` foram corretamente ignoradas.
+
+A evidência é vinculada ao commit testado e preserva o histórico anterior de 6.6.52. `pinned_environment_resolved=true` indica **somente** ambiente reproduzível; `physical_artifact_authorized=false` e `physical_write_allowed=false` continuam vigentes. A reconciliação documental e de contratos gera novo commit, que precisa de nova validação do GitHub antes do merge.
+
 ## Gates que não podem ser inferidos
 
 1. Repetir a compilação no ambiente imutável contra o **head final** da PR e comparar config, módulos e kernel.
