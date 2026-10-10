@@ -1,0 +1,10 @@
+import {createRoot} from 'react-dom/client';
+import {createRootRoute,createRoute,createRouter,RouterProvider} from '@tanstack/react-router';
+import {Toaster} from 'sonner';
+import {WebShell} from './components/web/shell';
+import {normalizeWebView} from './lib/web/model';
+import './styles.css';
+const rootRoute=createRootRoute();
+const web=createRoute({getParentRoute:()=>rootRoute,path:'/web2/',validateSearch:(s:Record<string,unknown>)=>({view:normalizeWebView(s.view)}),component:()=>{const {view}=web.useSearch();return <><WebShell view={view}/><Toaster/></>}});
+const router=createRouter({routeTree:rootRoute.addChildren([web])});
+createRoot(document.getElementById('root')!).render(<RouterProvider router={router}/>);

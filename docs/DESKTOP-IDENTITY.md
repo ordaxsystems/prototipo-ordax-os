@@ -107,3 +107,18 @@ launcher, window minimize/restore/close and Space menus work at desktop/mobile;
 viewport has no horizontal overflow; light/dark/high-contrast preferences retain
 one owner; build graph remains offline and dependency-free. Source and browser
 proof do not authorize a public release or enable unavailable remote services.
+
+### Web2: cópia visual isolada para avaliação — 2026-10-10
+
+Correção explícita de escopo pelo usuário após PR #1619: primeiro reproduzir
+integralmente o layout Web do Account Hub, sem integração, em um Web2 separado.
+Owner: avaliação visual OS. Fonte exata e hashes em
+`tools/web2-preview/provenance.json`, upstream
+`washingtonmsdj/account-hub-pro@0f955ece6e570801976d8ed77d2cada101b7a3fa`.
+Decisão ADOPTED somente como fixture visual isolada. CSS, assets, componentes e
+estados demonstrativos preservados; único acesso a modelo desativado. Não é
+outra Surface nem serviço de produção; nenhuma receita atual incorpora a pasta.
+Não muda o Web canônico, portal, Identity, Intelligence, Memory, grants, Store,
+Runtime ou sync. O README explica execução, risco de dependências/provenance,
+limites dos dados demonstrativos e aceite desktop/mobile. Migração posterior
+depende da avaliação do usuário e dos contratos canônicos.
