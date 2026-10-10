@@ -56,7 +56,7 @@ import { createWebSyncTransport } from "../../adapters/web/sync-transport.mjs";
 import { validateAccountRuntime } from "../../services/account/runtime.mjs";
 import { createAppActivationChannel } from "../../services/apps/activation.mjs";
 import { createAppLifecycleRequestService } from "../../services/apps/store-lifecycle-request-service.mjs";
-import { planFirstRunAppSelectionFromStore } from "../../services/apps/first-run-selection.mjs";
+import { listFirstRunDefaultAppIds, planFirstRunAppSelectionFromStore } from "../../services/apps/first-run-selection.mjs";
 import { createUnavailableAppStoreCatalogPort } from "../../contracts/app-store.mjs";
 import { listSystemComponents } from "../../apps/component-catalog.mjs";
 import { listFirstPartyApps } from "../../apps/catalog.mjs";
@@ -1075,7 +1075,8 @@ async function start() {
       initialProvisioning: !firstRunStateStore.load().completed,
       explicitlyRemovedAppIds: [],
       storeCatalogSnapshot: storeCatalog.getSnapshot(),
-      nativeCurrentMetadata: storeCatalogComposition?.getCurrentObservations() ?? [],
+      nativeCurrentMetadata: (storeCatalogComposition?.getCurrentObservations() ?? [])
+        .filter((entry) => listFirstRunDefaultAppIds().includes(entry.componentId)),
     });
   } catch (error) {
     // Conflicting Store/Native observations must not become install intents
