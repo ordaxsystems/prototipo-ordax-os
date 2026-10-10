@@ -62,6 +62,10 @@ def main() -> int:
     packages = contract["apt"]["packages"]
     expected = contract["apt"].get("expected_versions", {})
     observed = {name: package_version(name) for name in packages}
+    # A signed kernel cannot inherit the historical unsigned kernel toolchain.
+    # The package is also version-bound below to this exact Ubuntu snapshot.
+    if "gpg" in packages and shutil.which("gpg") is None:
+        fail("signed kernel environment lacks executable gpg")
 
     if contract["proof"].get("package_versions_pinned"):
         if set(expected) != set(packages):

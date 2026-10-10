@@ -23,6 +23,12 @@ class KernelBuildEnvironmentContractTests(unittest.TestCase):
         self.assertIn("gcc", value["apt"]["packages"])
         self.assertIn("gcc-13", value["apt"]["packages"])
         self.assertIn("python3", value["apt"]["packages"])
+        # OpenPGP is required by the current signed kernel source; it must be
+        # installed from the exact same snapshot as the compiler and linker.
+        source = json.loads((ROOT / "bootstrap/kernel/source.json").read_text(encoding="utf-8"))
+        if source.get("upstream_signature"):
+            self.assertIn("gpg", value["apt"]["packages"])
+            self.assertEqual(value["apt"]["expected_versions"]["gpg"], "2.4.4-2ubuntu17.6")
 
     def test_promotion_requires_pinned_versions_and_repeat_digest_proof(self):
         value = self.load()
@@ -54,6 +60,7 @@ class KernelBuildEnvironmentContractTests(unittest.TestCase):
         self.assertTrue(policy["historical_reference_artifacts_are_environment_observation_only"])
         self.assertTrue(policy["promotion_requires_same_current_source_repeat_build_match"])
         self.assertTrue(policy["historical_artifact_digest_is_not_a_permanent_current_build_oracle"])
+        self.assertTrue(policy["historical_proof_does_not_authorize_new_signed_source"])
 
         verifier = (
             ROOT / "bootstrap/kernel/verify_reproducibility.py"

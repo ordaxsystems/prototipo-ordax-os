@@ -1,6 +1,6 @@
 {
   "$schema": "prototype-ordax.kernel-build-environment/1",
-  "status": "pinned-repeat-proof-complete",
+  "status": "pinned-repeat-proof-required",
   "architecture": "linux/amd64",
   "base_image": {
     "repository": "docker.io/library/ubuntu",
@@ -19,6 +19,7 @@
       "flex",
       "gcc",
       "gcc-13",
+      "gpg",
       "kmod",
       "libelf-dev",
       "libssl-dev",
@@ -38,6 +39,7 @@
       "flex": "2.6.4-8.2build1",
       "gcc": "4:13.2.0-7ubuntu1",
       "gcc-13": "13.3.0-6ubuntu2~24.04.1",
+      "gpg": "2.4.4-2ubuntu17.6",
       "kmod": "31+20240202-2ubuntu7.2",
       "libelf-dev": "0.190-1.1ubuntu0.1",
       "libssl-dev": "3.0.13-0ubuntu3.15",
@@ -72,13 +74,14 @@
   "proof": {
     "first_observation_complete": true,
     "package_versions_pinned": true,
-    "repeat_build_digest_match": true,
-    "promotable_to_physical": true
+    "repeat_build_digest_match": false,
+    "promotable_to_physical": false
   },
   "artifact_digest_policy": {
     "current_source_or_config_may_change_artifact_bytes": true,
     "historical_reference_artifacts_are_environment_observation_only": true,
     "promotion_requires_same_current_source_repeat_build_match": true,
-    "historical_artifact_digest_is_not_a_permanent_current_build_oracle": true
+    "historical_artifact_digest_is_not_a_permanent_current_build_oracle": true,
+    "historical_proof_does_not_authorize_new_signed_source": true
   }
 }
