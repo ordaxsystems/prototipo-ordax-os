@@ -8,6 +8,7 @@ import {
   createNativeStoreCatalogComposition,
 } from "../system/composition/native/store-catalog.mjs";
 import { planFirstRunAppSelectionFromStore } from "../system/services/apps/first-run-selection.mjs";
+import { listExternalFirstPartyComponentIds } from "../system/services/apps/external-first-party-policy.mjs";
 
 const COMMIT = "a".repeat(40);
 
@@ -127,7 +128,7 @@ test("Native Store composition derives installability only from verified catalog
   const readsBefore = calls.length;
   const observations = composition.getCurrentObservations();
   assert.equal(calls.length, readsBefore, "First Run reuses existing Native metadata without refetch");
-  assert.deepEqual(observations.map(item => item.componentId).sort(), ["notes", "studio"]);
+  assert.deepEqual(observations.map(item => item.componentId).sort(), [...listExternalFirstPartyComponentIds()].sort());
   assert.equal(observations.find(item => item.componentId === "notes").source, "absent");
   assert.equal(Object.isFrozen(observations), true);
   composition.destroy();
