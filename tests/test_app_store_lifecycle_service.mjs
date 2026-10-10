@@ -487,6 +487,23 @@ test("signed module read alone cannot authorize Store install without Native pro
   assert.equal(delegated,0,"Native lifecycle delegate must not be invoked");
 });
 
+test("verified catalog cannot grant Native module reads for a utility excluded by the canonical policy", async () => {
+  let calls = 0;
+  const runtime = service({
+    projection: ready(entry({
+      appId: "clock", title: "Relógio", availableVersion: "0.4.3",
+    })),
+    verified: verifiedReady([verifiedEntry({ appId: "clock" })]),
+    executeLifecycle: async (plan) => { calls++; return resultFor(plan); },
+  });
+  const result = await runtime.requestLifecycle(request("install", {
+    appId: "clock", requestId: "store:install:clock:module-scope-test",
+  }));
+  assert.equal(result.state, "rejected");
+  assert.equal(result.reason, "runtime-module-read-unavailable");
+  assert.equal(calls, 0);
+});
+
 test("store removal is not blocked by missing Native executable-read support", async () => {
   let calls=0;
   const runtime=service({
