@@ -1,4 +1,5 @@
 import { validateComponentId } from "../../contracts/component-manifest.mjs";
+import { NATIVE_COMPONENT_PROBATION_IDS, NATIVE_COMPONENT_PROBE_MODE } from "./probation-policy.generated.mjs";
 import {
   COMPONENT_PROBATION_RESULT_SCHEMA,
   runPendingComponentProbation,
