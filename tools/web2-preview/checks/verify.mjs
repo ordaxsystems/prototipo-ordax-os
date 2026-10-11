@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {readFile} from 'node:fs/promises';
+import {readFile, readdir} from 'node:fs/promises';
 import {windowReducer, initialWindows} from '../src/lib/web/windows.ts';
 import {askIntelligence} from '../src/lib/intelligence/ai.functions.ts';
 const root = new URL('../', import.meta.url);
@@ -45,3 +45,28 @@ const result = await askIntelligence({message:'verification'});
 assert.equal(result.ok, false);
 assert.equal(result.status, 503, 'Visual preview must not execute a model');
 console.log('PASS: ' + verified + ' reference files/assets (recorded edits reversed); window lifecycle, geometry and disabled AI');
+
+if (process.argv.includes('--preview')) {
+  const origin = 'http://127.0.0.1:4201';
+  const views = ['home', 'assistant', 'apps', 'projects', 'files', 'spaces', 'internet', 'store'];
+  let html = '';
+  for (const path of ['/web2/', ...views.map(view => '/web2?view=' + view)]) {
+    const response = await fetch(origin + path, {signal: AbortSignal.timeout(8000)});
+    assert.equal(response.status, 200, 'Direct reload fails: ' + path);
+    html = await response.text();
+    assert.ok(html.includes('<div id="root"></div>'), 'Missing app document: ' + path);
+  }
+  assert.ok(html.includes('<meta name="color-scheme" content="dark">'), 'Native controls must match the dark theme');
+  const assets = [...html.matchAll(/(?:src|href)="(\/assets\/[^" ]+)"/g)].map(match => match[1]);
+  assert.ok(assets.length >= 2, 'Missing compiled JS/CSS references');
+  const compiledAssets = await readdir(new URL('dist/assets/', root));
+  for (const path of new Set([...assets, ...compiledAssets.map(name => '/assets/' + name)])) {
+    const response = await fetch(origin + path, {signal: AbortSignal.timeout(8000)});
+    assert.equal(response.status, 200, 'Missing asset: ' + path);
+    assert.ok(!response.headers.get('content-type')?.includes('text/html'), 'HTML fallback instead of asset: ' + path);
+    const served = Buffer.from(await response.arrayBuffer());
+    const built = await readFile(new URL('dist' + path, root));
+    assert.equal(createHash('sha256').update(served).digest('hex'), createHash('sha256').update(built).digest('hex'), 'Stale build served: ' + path);
+  }
+  console.log('PASS: preview direct reload for 8 views; ' + compiledAssets.length + ' build assets match served bytes; dark native controls declared (HTTP only, not browser rendering)');
+}

@@ -33,3 +33,12 @@ end-to-end service or production availability check.
 TypeScript: npm run typecheck. The visual fixture has strict checking without
 importing the upstream server. The original Store/Spaces unreachable comparison
 was removed; provenance records reversible nonvisual edits, checked by verify.
+
+Reload and delivery: npm run verify:preview with the preview server running.
+The isolated Vite host serves assets from its root; /web2/ is the sole client
+route, with canonical trailing slash. This avoids the slashless reload 404
+without adding legacy routes or production redirects. HTTP checks prove
+document/asset delivery only, not client rendering. Native controls follow
+the dark color scheme declared once in index.html.
+The delivery check also compares every served compiled asset with the local
+build bytes, detecting a stale host or wrong output directory.
