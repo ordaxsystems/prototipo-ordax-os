@@ -29,3 +29,7 @@ Checks original file/asset hashes with Git line-ending normalization, window
 lifecycle without duplicate instances, restore after minimize, geometry bounds,
 initial-state immutability and the disabled model boundary. This is not an
 end-to-end service or production availability check.
+
+TypeScript: npm run typecheck. The visual fixture has strict checking without
+importing the upstream server. The original Store/Spaces unreachable comparison
+was removed; provenance records reversible nonvisual edits, checked by verify.

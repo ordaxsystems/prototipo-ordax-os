@@ -7,8 +7,13 @@ const root = new URL('../', import.meta.url);
 const provenance = JSON.parse(await readFile(new URL('provenance.json', root), 'utf8'));
 let verified = 0;
 for (const entry of provenance.files) {
-  if (['src/components/web/shell.tsx', 'src/lib/intelligence/ai.functions.ts'].includes(entry.path)) continue;
-  const bytes = await readFile(new URL(entry.path, root));
+  if (['src/lib/intelligence/ai.functions.ts'].includes(entry.path)) continue;
+  let bytes = await readFile(new URL(entry.path, root));
+  for (const change of provenance.textChanges?.[entry.path] ?? []) {
+    const source = bytes.toString('utf8');
+    assert.ok(source.includes(change.to), 'Recorded adjustment missing: ' + entry.path);
+    bytes = Buffer.from(source.replaceAll(change.to, change.from));
+  }
   const sha = value => createHash('sha256').update(value).digest('hex');
   const candidates = [sha(bytes)];
   // Git may normalize text line endings between platforms.
@@ -39,4 +44,4 @@ assert.equal(JSON.stringify(initialWindows), before, 'Interactions preserve init
 const result = await askIntelligence({message:'verification'});
 assert.equal(result.ok, false);
 assert.equal(result.status, 503, 'Visual preview must not execute a model');
-console.log('PASS: ' + verified + ' original files/assets; window lifecycle, geometry and disabled AI');
+console.log('PASS: ' + verified + ' reference files/assets (recorded edits reversed); window lifecycle, geometry and disabled AI');

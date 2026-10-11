@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 4201 --strictPort",
-    "build": "vite build",
+    "build": "npm run typecheck && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4201 --strictPort",
-    "verify": "node --experimental-strip-types checks/verify.mjs"
+    "verify": "node --experimental-strip-types checks/verify.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

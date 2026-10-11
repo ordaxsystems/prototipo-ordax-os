@@ -151,6 +151,26 @@
   "modifications": [
     "ai.functions.ts: model disabled; visual unchanged",
     "shell.tsx: /web navigation changed to /web2/ only",
-    "standalone main/vite/index preview harness with original Google Fonts"
-  ]
+    "standalone main/vite/index preview harness with original Google Fonts",
+    "pages.tsx: remove unreachable Store comparison after Store already rendered; no visual change",
+    "ai.functions.ts: typed fail-closed response matching existing caller"
+  ],
+  "textChanges": {
+    "src/components/web/shell.tsx": [
+      {
+        "from": "'/web'",
+        "to": "'/web2/'"
+      },
+      {
+        "from": "\"/web\"",
+        "to": "\"/web2/\""
+      }
+    ],
+    "src/components/web/pages.tsx": [
+      {
+        "from": "id === 'apps' ? 'APLICATIVOS' : id === 'store' ? 'LOJA' : 'SPACES'",
+        "to": "id === 'apps' ? 'APLICATIVOS' : 'SPACES'"
+      }
+    ]
+  }
 }
