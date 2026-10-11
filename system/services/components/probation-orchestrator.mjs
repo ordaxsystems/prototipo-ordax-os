@@ -8,10 +8,9 @@ import {
 export const COMPONENT_PROBATION_ORCHESTRATOR_SCHEMA =
   "ordax.component-probation-orchestrator/1";
 
-const PROBE_MODES = Object.freeze({
-  internet: "import-contract",
-  notes: "import-contract",
-});
+const PROBE_MODES = Object.freeze(Object.fromEntries(
+  NATIVE_COMPONENT_PROBATION_IDS.map((id) => [id, NATIVE_COMPONENT_PROBE_MODE]),
+));
 
 function probeFor(componentId) {
   const mode = PROBE_MODES[componentId];
