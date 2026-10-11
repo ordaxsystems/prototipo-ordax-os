@@ -7,6 +7,8 @@ import {
   systemComponentProbationProbeMode,
 } from "../system/services/components/probation-orchestrator.mjs";
 import { COMPONENT_RUNTIME_SCHEMA } from "../system/contracts/component-runtime.mjs";
+import { readFileSync } from "node:fs";
+import { NATIVE_COMPONENT_PROBATION_IDS, NATIVE_COMPONENT_PROBE_MODE } from "../system/services/components/probation-policy.generated.mjs";
 import { createNativeComponentSlotSource } from "../system/adapters/native/component-slot-source.mjs";
 
 const COMMIT = "a".repeat(40);
