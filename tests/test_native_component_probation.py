@@ -15,6 +15,7 @@ if str(RUNTIME) not in sys.path:
     sys.path.insert(0, str(RUNTIME))
 
 probation = importlib.import_module("native_component_probation")
+from native_store_metadata_policy import NATIVE_PROBATION_COMPONENT_IDS, NATIVE_HEALTH_MUTATION_COMPONENT_IDS
 slots = importlib.import_module("native_component_slots")
 
 COMMIT = "a" * 40
