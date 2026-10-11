@@ -1361,3 +1361,9 @@ endossa ou participa da OrdaX.
 
 A política detalhada de licença, proveniência e modos de adoção fica em
 `PLANO-04-FUNDACAO-ECOSSISTEMA-PRE-MVP.md`, seção 4.
+
+## Avaliação visual Web2 solicitada — 2026-10-10
+Exceção explícita ao incremento anterior: usuário solicitou cópia integral do
+layout Account Hub em preview separado antes de qualquer integração.
+Fixture em tools/web2-preview; provenance, owner, risco e aceite registrados em
+docs/DESKTOP-IDENTITY.md. Web atual preservado; nenhum serviço foi integrado.
