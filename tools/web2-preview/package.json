@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 4201 --strictPort",
     "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1 --port 4201 --strictPort"
+    "preview": "vite preview --host 127.0.0.1 --port 4201 --strictPort",
+    "verify": "node --experimental-strip-types checks/verify.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

@@ -23,3 +23,9 @@ Risk: third-party presentation/demo dependencies, isolated from production.
 Acceptance: reference layout and visual navigation in desktop/mobile.
 Account and public-site routes are outside scope. No redesign/integration in this
 first copy; wait for user evaluation before migrating to the canonical Web.
+
+Verification: npm run verify (Node built-in TypeScript stripping).
+Checks original file/asset hashes with Git line-ending normalization, window
+lifecycle without duplicate instances, restore after minimize, geometry bounds,
+initial-state immutability and the disabled model boundary. This is not an
+end-to-end service or production availability check.
